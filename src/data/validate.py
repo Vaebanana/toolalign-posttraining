@@ -6,11 +6,11 @@ JSON Schema 语义完全交给 ``jsonschema``；本模块只负责 canonical 外
 
 from __future__ import annotations
 
-from typing import Any, Iterable
+from collections.abc import Iterable
+from typing import Any
 
 from jsonschema import SchemaError
 from jsonschema.validators import validator_for
-
 
 KEEP = "keep"
 REPAIRED_KEEP = "repaired_keep"
@@ -212,6 +212,22 @@ def _collect_tools(
         definitions.setdefault(name, []).append((function, validator))
 
     return definitions
+
+
+def collect_tool_validators(
+    tools: Any,
+) -> tuple[
+    dict[str, list[tuple[dict[str, Any], Any]]],
+    list[dict[str, Any]],
+]:
+    """Build sample-local JSON Schema validators for downstream evaluation.
+
+    This public wrapper keeps schema interpretation shared with canonical data
+    validation.  Callers receive structural/schema errors instead of repairing
+    invalid definitions.
+    """
+    errors: list[dict[str, Any]] = []
+    return _collect_tools(tools, errors), errors
 
 
 def _validate_assistant(

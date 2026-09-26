@@ -1,0 +1,24 @@
+# Local environments
+/.venv/
+
+# Generated data; keep data-processing scripts under version control
+/data/*
+!/data/tools/
+
+# Experiment outputs, downloaded models, and temporary files
+/outputs/
+/models/
+/tmp/
+
+# Python caches and logs
+__pycache__/
+*.py[cod]
+.ruff_cache/
+.pytest_cache/
+.cache/
+*.log
+
+# Local secrets; allow a checked-in example
+.env
+.env.*
+!.env.example

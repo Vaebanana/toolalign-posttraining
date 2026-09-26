@@ -1,0 +1,1670 @@
+{
+  "artifact": "dpo_v1_primary_stratified_human_audit",
+  "version": 1,
+  "status": "failed_quality_gate",
+  "completed_human_audit": {
+    "reviewed_samples": 20,
+    "decision_counts": {
+      "PASS": 9,
+      "FAIL": 2,
+      "UNSURE": 9
+    },
+    "fail_or_unsure_samples": 11,
+    "fail_or_unsure_rate": 0.55,
+    "quality_gate_passed": false,
+    "review_provenance": "human_review_reported_by_project_owner"
+  },
+  "instructions": {
+    "question": "在当前 user query 和 relevant tool schema 下，chosen 是否明确优于 rejected？",
+    "allowed_decisions": [
+      "PASS",
+      "FAIL",
+      "UNSURE"
+    ],
+    "editing": "human_review.decision 已由项目负责人完成；human_review.note 记录判定依据。",
+    "interpretation": {
+      "PASS": "chosen 明确更好",
+      "FAIL": "chosen 不优于 rejected 或裁决方向错误",
+      "UNSURE": "现有输入不足以可靠支持 preference direction"
+    }
+  },
+  "quality_gate": {
+    "formula": "(FAIL + UNSURE) / reviewed_samples",
+    "maximum_rate": 0.05,
+    "maximum_fail_or_unsure_count_for_20_reviews": 1,
+    "on_failure": "返回并收紧 preference filtering；FAIL 和 UNSURE 均不得进入 DPO-v1。"
+  },
+  "source_inventory": {
+    "primary_candidates": 208,
+    "mining_v1": 106,
+    "mining_v2": 102,
+    "inventory_by_audit_stratum": {
+      "value_transformation_or_normalization": 105,
+      "constraint_or_schema_option_selection": 44,
+      "entity_or_literal_extraction": 20,
+      "missing_argument": 22,
+      "extra_argument": 15,
+      "other_primary": 2
+    },
+    "annotation_provenance": "codex_assisted_case_by_case_review_not_human_ground_truth"
+  },
+  "automatic_integrity_verification": {
+    "checked_candidates": 208,
+    "failed_candidates": 0,
+    "checks": {
+      "source_sample_in_train": {
+        "passed": 208,
+        "failed": 0
+      },
+      "outside_sft_v1_10k": {
+        "passed": 208,
+        "failed": 0
+      },
+      "chosen_equals_canonical_gold": {
+        "passed": 208,
+        "failed": 0
+      },
+      "rejected_equals_original_sft_v1_prediction": {
+        "passed": 208,
+        "failed": 0
+      },
+      "chosen_differs_from_rejected": {
+        "passed": 208,
+        "failed": 0
+      },
+      "rejected_failed_frozen_evaluator": {
+        "passed": 208,
+        "failed": 0
+      },
+      "structurally_analyzable": {
+        "passed": 208,
+        "failed": 0
+      },
+      "high_confidence_not_uncertain_or_ambiguous": {
+        "passed": 208,
+        "failed": 0
+      },
+      "dpo_v1_primary": {
+        "passed": 208,
+        "failed": 0
+      },
+      "unique_sample_id": {
+        "passed": 208,
+        "failed": 0
+      }
+    }
+  },
+  "selection": {
+    "method": "stratified deterministic SHA-256 ordering within frozen batch/stratum/call-type quotas",
+    "seed": "toolalign-human-audit-v1-20-seed-20260902",
+    "selected_samples": 20,
+    "ordered_sample_ids_sha256": "1fcbab45195db44e2e58da3add5b62eb58adde5888d5cacff50396cdc0a0d6bd",
+    "phase_5d_missing_extra_sampling_rule": "For audit clarity, missing/extra strata use candidates with exactly that structural diagnostic; mixed-diagnostic primary cases remain in the 208-candidate inventory.",
+    "by_batch": {
+      "mining_v1": 10,
+      "mining_v2": 10
+    },
+    "by_call_type": {
+      "single": 10,
+      "multi": 10
+    },
+    "by_audit_stratum": {
+      "value_transformation_or_normalization": 8,
+      "constraint_or_schema_option_selection": 4,
+      "entity_or_literal_extraction": 2,
+      "missing_argument": 3,
+      "extra_argument": 2,
+      "other_primary": 1
+    }
+  },
+  "display_contract": {
+    "chosen_calls": "Canonical gold tool calls, normalized for compact display.",
+    "rejected_calls": "Original deterministic SFT-v1 parsed tool calls.",
+    "relevant_tools": "Only tools and parameter schemas involved in evaluator argument differences are shown.",
+    "full_raw_records": "Remain unchanged in the mining_v1/mining_v2 source outputs and are not duplicated here."
+  },
+  "cases": [
+    {
+      "audit_id": "AUDIT-01",
+      "source_sample_id": "xlam_44621",
+      "source_batch": "mining_v1",
+      "adjudication_stage": "phase_5c",
+      "audit_stratum": "value_transformation_or_normalization",
+      "call_type": "single",
+      "user_query": "What is the supply information for Bitcoin?",
+      "relevant_tools": [
+        {
+          "name": "get_coin_supply",
+          "description": "Fetch the maximum, total, and circulating supply of a cryptocurrency by its UUID.",
+          "relevant_parameters": {
+            "uuid": {
+              "type": "string",
+              "description": "The UUID of the coin for which the supply information is requested.",
+              "default": "Qwsogvtv82FCd"
+            }
+          },
+          "required_parameters": []
+        }
+      ],
+      "chosen_calls": [
+        {
+          "name": "get_coin_supply",
+          "arguments": {
+            "uuid": "Qwsogvtv82FCd"
+          }
+        }
+      ],
+      "rejected_calls": [
+        {
+          "name": "get_coin_supply",
+          "arguments": {
+            "uuid": "bitcoin"
+          }
+        }
+      ],
+      "argument_differences": [
+        {
+          "tool": "get_coin_supply",
+          "argument_path": "uuid",
+          "difference_type": "wrong_value",
+          "chosen_value": "Qwsogvtv82FCd",
+          "rejected_value": "bitcoin"
+        }
+      ],
+      "model_assisted_preference_reason": "The endpoint requires a coin UUID; Qwsogvtv82FCd is Bitcoin's UUID, while bitcoin is only its name.",
+      "human_review": {
+        "decision": "UNSURE",
+        "note": "Bitcoin 到 opaque UUID 的映射未由 query 或 schema 明确提供；default 中恰好出现该 ID 不足以建立 preference。"
+      }
+    },
+    {
+      "audit_id": "AUDIT-02",
+      "source_sample_id": "xlam_47147",
+      "source_batch": "mining_v1",
+      "adjudication_stage": "phase_5b",
+      "audit_stratum": "value_transformation_or_normalization",
+      "call_type": "single",
+      "user_query": "Search for albums by Lady Gaga on Spotify, limit the results to 25, and retrieve the second page of results.",
+      "relevant_tools": [
+        {
+          "name": "search",
+          "description": "Search for various types of items on Spotify such as albums, artists, episodes, genres, playlists, podcasts, and users using the Spotify scraper API. Supports pagination.",
+          "relevant_parameters": {
+            "offset": {
+              "type": "integer",
+              "description": "The number of items to skip before starting to collect the result set. Defaults to `0`.",
+              "default": ""
+            }
+          },
+          "required_parameters": []
+        }
+      ],
+      "chosen_calls": [
+        {
+          "name": "search",
+          "arguments": {
+            "term": "Lady Gaga",
+            "type": "album",
+            "limit": 25,
+            "offset": 25
+          }
+        }
+      ],
+      "rejected_calls": [
+        {
+          "name": "search",
+          "arguments": {
+            "term": "Lady Gaga",
+            "type": "album",
+            "limit": 25,
+            "offset": 50
+          }
+        }
+      ],
+      "argument_differences": [
+        {
+          "tool": "search",
+          "argument_path": "offset",
+          "difference_type": "wrong_value",
+          "chosen_value": 25,
+          "rejected_value": 50
+        }
+      ],
+      "model_assisted_preference_reason": "With limit 25, the second page deterministically starts at offset 25; the SFT prediction uses 50.",
+      "human_review": {
+        "decision": "PASS",
+        "note": "second page 与 limit=25 可确定推出 offset=25。"
+      }
+    },
+    {
+      "audit_id": "AUDIT-03",
+      "source_sample_id": "xlam_46743",
+      "source_batch": "mining_v1",
+      "adjudication_stage": "phase_5c",
+      "audit_stratum": "value_transformation_or_normalization",
+      "call_type": "multi",
+      "user_query": "Get the latest shorts from the YouTube channel 'CNN' and the latest tweets by the Twitter user with ID 9876543210. Ignore the Instagram request.",
+      "relevant_tools": [
+        {
+          "name": "channel_shorts",
+          "description": "Fetch the latest shorts published by a YouTube channel using the provided `channel_id` and RapidAPI key.",
+          "relevant_parameters": {
+            "channel_id": {
+              "type": "string",
+              "description": "The ID of the YouTube channel.",
+              "default": "UCVhQ2NnY5Rskt6UjCUkJ_DA"
+            }
+          },
+          "required_parameters": []
+        }
+      ],
+      "chosen_calls": [
+        {
+          "name": "channel_shorts",
+          "arguments": {
+            "channel_id": "UCupvZG-5ko_eiXAupbDfxWw"
+          }
+        },
+        {
+          "name": "user_tweets",
+          "arguments": {
+            "user_id": "9876543210"
+          }
+        }
+      ],
+      "rejected_calls": [
+        {
+          "name": "channel_shorts",
+          "arguments": {
+            "channel_id": "CNN"
+          }
+        },
+        {
+          "name": "user_tweets",
+          "arguments": {
+            "user_id": "9876543210"
+          }
+        }
+      ],
+      "argument_differences": [
+        {
+          "tool": "channel_shorts",
+          "argument_path": "channel_id",
+          "difference_type": "wrong_value",
+          "chosen_value": "UCupvZG-5ko_eiXAupbDfxWw",
+          "rejected_value": "CNN"
+        }
+      ],
+      "model_assisted_preference_reason": "The channel_id field requires CNN's YouTube channel ID; the SFT prediction passes the channel name instead.",
+      "human_review": {
+        "decision": "UNSURE",
+        "note": "CNN 到 opaque channel_id 的映射未由模型可见输入提供。"
+      }
+    },
+    {
+      "audit_id": "AUDIT-04",
+      "source_sample_id": "xlam_2432",
+      "source_batch": "mining_v1",
+      "adjudication_stage": "phase_5c",
+      "audit_stratum": "value_transformation_or_normalization",
+      "call_type": "multi",
+      "user_query": "What are the catalog albums for the week of November 15, 2022, and the radio playlist for the artist 'Taylor Swift'?",
+      "relevant_tools": [
+        {
+          "name": "get_radio_playlist",
+          "description": "Fetches a radio playlist for a given artist or song using the Spotify API.",
+          "relevant_parameters": {
+            "uri": {
+              "type": "string",
+              "description": "The URI of the artist or song for which to generate the radio playlist.",
+              "default": "spotify:artist:2w9zwq3AktTeYYMuhMjju8"
+            }
+          },
+          "required_parameters": []
+        }
+      ],
+      "chosen_calls": [
+        {
+          "name": "catalog_albums",
+          "arguments": {
+            "week": "2022-11-15"
+          }
+        },
+        {
+          "name": "get_radio_playlist",
+          "arguments": {
+            "uri": "spotify:artist:06HL4z0CvFAxyc27GXpf02"
+          }
+        }
+      ],
+      "rejected_calls": [
+        {
+          "name": "catalog_albums",
+          "arguments": {
+            "week": "2022-11-15"
+          }
+        },
+        {
+          "name": "get_radio_playlist",
+          "arguments": {
+            "uri": "spotify:artist:3Z3Z3Z3Z3Z3Z3Z3Z3Z3Z"
+          }
+        }
+      ],
+      "argument_differences": [
+        {
+          "tool": "get_radio_playlist",
+          "argument_path": "uri",
+          "difference_type": "wrong_value",
+          "chosen_value": "spotify:artist:06HL4z0CvFAxyc27GXpf02",
+          "rejected_value": "spotify:artist:3Z3Z3Z3Z3Z3Z3Z3Z3Z3Z"
+        }
+      ],
+      "model_assisted_preference_reason": "The canonical Spotify URI identifies Taylor Swift; the SFT URI is a fabricated different identifier.",
+      "human_review": {
+        "decision": "UNSURE",
+        "note": "Taylor Swift 到 Spotify URI 的映射需要外部知识。"
+      }
+    },
+    {
+      "audit_id": "AUDIT-05",
+      "source_sample_id": "xlam_35178",
+      "source_batch": "mining_v1",
+      "adjudication_stage": "phase_5c",
+      "audit_stratum": "constraint_or_schema_option_selection",
+      "call_type": "single",
+      "user_query": "Fetch a list of 50 new iOS apps from the App Store for the United Kingdom, under the category of 'Education', in English.",
+      "relevant_tools": [
+        {
+          "name": "new_ios_apps",
+          "description": "Fetch a list of new iOS apps from the App Store using the RapidAPI service.",
+          "relevant_parameters": {
+            "category": {
+              "type": "string",
+              "description": "The category code for the type of apps. Defaults to '6016'.",
+              "default": "6016"
+            }
+          },
+          "required_parameters": []
+        }
+      ],
+      "chosen_calls": [
+        {
+          "name": "new_ios_apps",
+          "arguments": {
+            "country": "gb",
+            "category": "6017",
+            "lang": "en",
+            "num": 50
+          }
+        }
+      ],
+      "rejected_calls": [
+        {
+          "name": "new_ios_apps",
+          "arguments": {
+            "country": "gb",
+            "category": "6014",
+            "lang": "en",
+            "num": 50
+          }
+        }
+      ],
+      "argument_differences": [
+        {
+          "tool": "new_ios_apps",
+          "argument_path": "category",
+          "difference_type": "wrong_value",
+          "chosen_value": "6017",
+          "rejected_value": "6014"
+        }
+      ],
+      "model_assisted_preference_reason": "App Store category code 6017 is Education; 6014 is Games.",
+      "human_review": {
+        "decision": "UNSURE",
+        "note": "schema 未提供 Education 到私有 category code 6017 的映射。"
+      }
+    },
+    {
+      "audit_id": "AUDIT-06",
+      "source_sample_id": "xlam_20159",
+      "source_batch": "mining_v1",
+      "adjudication_stage": "phase_5c",
+      "audit_stratum": "constraint_or_schema_option_selection",
+      "call_type": "multi",
+      "user_query": "Fetch the replies for idea '24680' with UUID 'ghi789' in English and the TVL data for Polygon. Also, what's the dividend rate for 'RIO.L' in the UK?",
+      "relevant_tools": [
+        {
+          "name": "stock_get_annual_avg_div_rate",
+          "description": "Fetches the annual average dividend rate for a given stock symbol.",
+          "relevant_parameters": {
+            "region": {
+              "type": "string",
+              "description": "The market region for the stock. Defaults to 'US'.",
+              "default": "US"
+            }
+          },
+          "required_parameters": []
+        }
+      ],
+      "chosen_calls": [
+        {
+          "name": "ideas_get_replies",
+          "arguments": {
+            "is_id": "24680",
+            "uuid": "ghi789",
+            "lang": "en"
+          }
+        },
+        {
+          "name": "charts_chain",
+          "arguments": {
+            "chain": "polygon"
+          }
+        },
+        {
+          "name": "stock_get_annual_avg_div_rate",
+          "arguments": {
+            "symbol": "RIO.L",
+            "region": "GB"
+          }
+        }
+      ],
+      "rejected_calls": [
+        {
+          "name": "ideas_get_replies",
+          "arguments": {
+            "is_id": "24680",
+            "uuid": "ghi789",
+            "lang": "en"
+          }
+        },
+        {
+          "name": "charts_chain",
+          "arguments": {
+            "chain": "polygon"
+          }
+        },
+        {
+          "name": "stock_get_annual_avg_div_rate",
+          "arguments": {
+            "symbol": "RIO.L",
+            "region": "UK"
+          }
+        }
+      ],
+      "argument_differences": [
+        {
+          "tool": "stock_get_annual_avg_div_rate",
+          "argument_path": "region",
+          "difference_type": "wrong_value",
+          "chosen_value": "GB",
+          "rejected_value": "UK"
+        }
+      ],
+      "model_assisted_preference_reason": "The standard two-letter market code for the United Kingdom is GB rather than UK.",
+      "human_review": {
+        "decision": "UNSURE",
+        "note": "schema 只说明 market region，没有声明 ISO 3166 或 GB 编码规范。"
+      }
+    },
+    {
+      "audit_id": "AUDIT-07",
+      "source_sample_id": "hermes_d2a23043-37c9-4bbe-b8bc-a8090567b4e1",
+      "source_batch": "mining_v1",
+      "adjudication_stage": "phase_5b",
+      "audit_stratum": "entity_or_literal_extraction",
+      "call_type": "single",
+      "user_query": "I am finalizing the launch of our new product and have created a promotional video that needs to be shared across our company's social media channels. The video is ready for upload and is located at \"path/to/promotional_video.mp4\". I would like the video to be accompanied by the following caption: \"Introducing our latest innovation - the future of technology. #NewProduct #Innovation #TechLaunch\". I want to ensure that this post reaches all our followers on Facebook, Twitter, and Instagram. \n\nPlease assist me in sharing this promotional video with the specified caption and these hashtags: #NewProduct, #Innovation, and #TechLaunch. The video needs to be posted to our accounts on the three mentioned social media platforms.\n\nTo complete this task, I'd like to call the necessary functions to post the video to social media.",
+      "relevant_tools": [
+        {
+          "name": "post_to_social_media",
+          "description": "Post a video with a caption and hashtags to specified social media accounts.",
+          "relevant_parameters": {
+            "caption": {
+              "type": "string",
+              "description": "The caption to accompany the video."
+            }
+          },
+          "required_parameters": [
+            "video_path",
+            "caption",
+            "hashtags",
+            "accounts"
+          ]
+        }
+      ],
+      "chosen_calls": [
+        {
+          "name": "post_to_social_media",
+          "arguments": {
+            "video_path": "path/to/promotional_video.mp4",
+            "caption": "Introducing our latest innovation - the future of technology. #NewProduct #Innovation #TechLaunch",
+            "hashtags": [
+              "#NewProduct",
+              "#Innovation",
+              "#TechLaunch"
+            ],
+            "accounts": [
+              "Facebook",
+              "Twitter",
+              "Instagram"
+            ]
+          }
+        }
+      ],
+      "rejected_calls": [
+        {
+          "name": "post_to_social_media",
+          "arguments": {
+            "video_path": "path/to/promotional_video.mp4",
+            "caption": "Introducing our latest innovation - the future of technology.",
+            "hashtags": [
+              "#NewProduct",
+              "#Innovation",
+              "#TechLaunch"
+            ],
+            "accounts": [
+              "Facebook",
+              "Twitter",
+              "Instagram"
+            ]
+          }
+        }
+      ],
+      "argument_differences": [
+        {
+          "tool": "post_to_social_media",
+          "argument_path": "caption",
+          "difference_type": "wrong_value",
+          "chosen_value": "Introducing our latest innovation - the future of technology. #NewProduct #Innovation #TechLaunch",
+          "rejected_value": "Introducing our latest innovation - the future of technology."
+        }
+      ],
+      "model_assisted_preference_reason": "The requested caption explicitly includes three hashtags that the SFT prediction drops.",
+      "human_review": {
+        "decision": "PASS",
+        "note": "完整 caption 在 query 中逐字给出，rejected 删除了三个 hashtags。"
+      }
+    },
+    {
+      "audit_id": "AUDIT-08",
+      "source_sample_id": "xlam_17686",
+      "source_batch": "mining_v1",
+      "adjudication_stage": "phase_5d",
+      "audit_stratum": "missing_argument",
+      "call_type": "multi",
+      "user_query": "Fetch the top 2 advisories without any additional details. Concurrently, search for domains that were registered with the keyword 'ai'.",
+      "relevant_tools": [
+        {
+          "name": "get_all_advisories",
+          "description": "Fetches all advisories providing timely information about current security issues, vulnerabilities, and exploits from CISA.gov.",
+          "relevant_parameters": {
+            "info": {
+              "type": "boolean",
+              "description": "Flag to include additional information in the advisories. Defaults to None.",
+              "default": "true"
+            }
+          },
+          "required_parameters": []
+        }
+      ],
+      "chosen_calls": [
+        {
+          "name": "get_all_advisories",
+          "arguments": {
+            "info": false,
+            "limit": 2
+          }
+        },
+        {
+          "name": "get_daily_domains",
+          "arguments": {
+            "keyword": "ai"
+          }
+        }
+      ],
+      "rejected_calls": [
+        {
+          "name": "get_all_advisories",
+          "arguments": {
+            "limit": 2
+          }
+        },
+        {
+          "name": "get_daily_domains",
+          "arguments": {
+            "keyword": "ai"
+          }
+        }
+      ],
+      "argument_differences": [
+        {
+          "tool": "get_all_advisories",
+          "argument_path": "info",
+          "difference_type": "missing_argument",
+          "chosen_value": false,
+          "rejected_value": {
+            "__absent__": true
+          }
+        }
+      ],
+      "model_assisted_preference_reason": "The query explicitly excludes additional details, so omitting info would leave a conflicting true-like default in effect.",
+      "human_review": {
+        "decision": "PASS",
+        "note": "query 明确排除 additional details，且 schema 显示省略会保留 true-like default。"
+      }
+    },
+    {
+      "audit_id": "AUDIT-09",
+      "source_sample_id": "xlam_52450",
+      "source_batch": "mining_v1",
+      "adjudication_stage": "phase_5d",
+      "audit_stratum": "extra_argument",
+      "call_type": "single",
+      "user_query": "What are the estimated house prices in the area of 'west-sussex/crawley/greenwich-close'? Order the results by 'price_paid' in 'ascending' order.",
+      "relevant_tools": [
+        {
+          "name": "house_prices_estimate",
+          "description": "Estimates house prices based on given criteria and returns a list of estimated prices.",
+          "relevant_parameters": {
+            "property_type": {
+              "type": "string",
+              "description": "The type of property. Options are 'detached', 'flat', 'terraced', 'semi_detached'.",
+              "default": ""
+            }
+          },
+          "required_parameters": []
+        }
+      ],
+      "chosen_calls": [
+        {
+          "name": "house_prices_estimate",
+          "arguments": {
+            "area": "west-sussex/crawley/greenwich-close",
+            "order_by": "price_paid",
+            "ordering": "ascending"
+          }
+        }
+      ],
+      "rejected_calls": [
+        {
+          "name": "house_prices_estimate",
+          "arguments": {
+            "area": "west-sussex/crawley/greenwich-close",
+            "property_type": "detached",
+            "order_by": "price_paid",
+            "ordering": "ascending"
+          }
+        }
+      ],
+      "argument_differences": [
+        {
+          "tool": "house_prices_estimate",
+          "argument_path": "property_type",
+          "difference_type": "extra_argument",
+          "chosen_value": {
+            "__absent__": true
+          },
+          "rejected_value": "detached"
+        }
+      ],
+      "model_assisted_preference_reason": "The SFT call invents a detached-property filter and would omit other property types requested for the area.",
+      "human_review": {
+        "decision": "PASS",
+        "note": "rejected 凭空增加 detached 过滤条件，缩小了用户请求范围。"
+      }
+    },
+    {
+      "audit_id": "AUDIT-10",
+      "source_sample_id": "hermes_22a2717c-9f27-4725-85f3-0fa921e6246f",
+      "source_batch": "mining_v1",
+      "adjudication_stage": "phase_5d",
+      "audit_stratum": "other_primary",
+      "call_type": "multi",
+      "user_query": "I am running an online clothing store and I'd like to offer my customers the convenience of using Klarna for their purchases. For this, I need to set up a Klarna payment session for a customer who has just placed an order. The order includes various clothing items with specifics like quantity, unit price, taxes, and the total amount. Additionally, I’d like to create a customer token for one of my frequent buyers to streamline their future purchases, and I have a refund to process for a returned item from a previous order.\n\n**Order for Payment Session:**\n- Order ID: 98765ABC\n- Total amount: 15800 cents ($158.00)\n- Currency: USD\n- Locale: en-US\n- Purchase country: US\n\n**Items in Order:**\n1. Floral Print Dress\n   - Quantity: 2\n   - Unit price: 4500 cents\n   - Tax rate: 8%\n   - Total amount: 9000 cents\n   - Total tax amount: 720 cents\n\n2. Cotton T-shirt\n   - Quantity: 1\n   - Unit price: 2000 cents\n   - Tax rate: 8%\n   - Total amount: 2000 cents\n   - Total tax amount: 160 cents\n\n3. Leather Jacket\n   - Quantity: 1\n   - Unit price: 4800 cents\n   - Tax rate: 8%\n   - Total amount: 4800 cents\n   - Total tax amount: 384 cents\n\n**Customer for Token Creation:**\n- First name: Emily\n- Last name: Johnson\n- Email: emily.johnson@email.com\n- Purchase country: US\n- Locale: en-US\n\n**Refund Details:**\n- Payment ID: PAY123456789\n- Amount: 7500 cents ($75.00)\n- Description: Refund for returned denim jeans\n\nTo assist with these tasks, please initiate the payment session with Klarna for the order detailed above, create a customer token for recurring payments, and process the refund for the payment ID provided. Thank you.",
+      "relevant_tools": [
+        {
+          "name": "initiate_payment_session",
+          "description": "Initiates a payment session with Klarna for an order.",
+          "relevant_parameters": {
+            "items": {
+              "type": "array",
+              "description": "List of items included in the order.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Name of the item."
+                  },
+                  "quantity": {
+                    "type": "integer",
+                    "description": "Quantity of the item."
+                  },
+                  "unit_price": {
+                    "type": "integer",
+                    "description": "Price per unit of the item in the smallest currency unit."
+                  },
+                  "tax_rate": {
+                    "type": "integer",
+                    "description": "Tax rate for the item in hundredths (e.g., 2500 for 25%)."
+                  },
+                  "total_amount": {
+                    "type": "integer",
+                    "description": "Total amount for the item in the smallest currency unit."
+                  },
+                  "total_tax_amount": {
+                    "type": "integer",
+                    "description": "Total tax amount for the item in the smallest currency unit."
+                  }
+                },
+                "required": [
+                  "name",
+                  "quantity",
+                  "unit_price",
+                  "tax_rate",
+                  "total_amount",
+                  "total_tax_amount"
+                ]
+              }
+            }
+          },
+          "required_parameters": [
+            "amount",
+            "currency",
+            "locale",
+            "purchase_country",
+            "order_id",
+            "items"
+          ]
+        }
+      ],
+      "chosen_calls": [
+        {
+          "name": "initiate_payment_session",
+          "arguments": {
+            "amount": 15800,
+            "currency": "USD",
+            "locale": "en-US",
+            "purchase_country": "US",
+            "order_id": "98765ABC",
+            "items": [
+              {
+                "name": "Floral Print Dress",
+                "quantity": 2,
+                "unit_price": 4500,
+                "tax_rate": 800,
+                "total_amount": 9000,
+                "total_tax_amount": 720
+              },
+              {
+                "name": "Cotton T-shirt",
+                "quantity": 1,
+                "unit_price": 2000,
+                "tax_rate": 800,
+                "total_amount": 2000,
+                "total_tax_amount": 160
+              },
+              {
+                "name": "Leather Jacket",
+                "quantity": 1,
+                "unit_price": 4800,
+                "tax_rate": 800,
+                "total_amount": 4800,
+                "total_tax_amount": 384
+              }
+            ]
+          }
+        },
+        {
+          "name": "create_customer_token",
+          "arguments": {
+            "customer": {
+              "first_name": "Emily",
+              "last_name": "Johnson",
+              "email": "emily.johnson@email.com"
+            },
+            "purchase_country": "US",
+            "locale": "en-US"
+          }
+        },
+        {
+          "name": "process_refund",
+          "arguments": {
+            "payment_id": "PAY123456789",
+            "amount": 7500,
+            "description": "Refund for returned denim jeans"
+          }
+        }
+      ],
+      "rejected_calls": [
+        {
+          "name": "initiate_payment_session",
+          "arguments": {
+            "amount": 15800,
+            "currency": "USD",
+            "locale": "en-US",
+            "purchase_country": "US",
+            "order_id": "98765ABC",
+            "items": [
+              {
+                "name": "Floral Print Dress",
+                "quantity": 2,
+                "unit_price": 4500,
+                "tax_rate": 8,
+                "total_amount": 9000,
+                "total_tax_amount": 720
+              },
+              {
+                "name": "Cotton T-shirt",
+                "quantity": 1,
+                "unit_price": 2000,
+                "tax_rate": 8,
+                "total_amount": 2000,
+                "total_tax_amount": 160
+              },
+              {
+                "name": "Leather Jacket",
+                "quantity": 1,
+                "unit_price": 4800,
+                "tax_rate": 8,
+                "total_amount": 4800,
+                "total_tax_amount": 384
+              }
+            ]
+          }
+        },
+        {
+          "name": "create_customer_token",
+          "arguments": {
+            "customer": {
+              "first_name": "Emily",
+              "last_name": "Johnson",
+              "email": "emily.johnson@email.com"
+            },
+            "purchase_country": "US",
+            "locale": "en-US"
+          }
+        },
+        {
+          "name": "process_refund",
+          "arguments": {
+            "payment_id": "PAY123456789",
+            "amount": 7500,
+            "description": "Refund for returned denim jeans"
+          }
+        }
+      ],
+      "argument_differences": [
+        {
+          "tool": "initiate_payment_session",
+          "argument_path": "items",
+          "difference_type": "nested_structure_mismatch",
+          "chosen_value": [
+            {
+              "name": "Floral Print Dress",
+              "quantity": 2,
+              "unit_price": 4500,
+              "tax_rate": 800,
+              "total_amount": 9000,
+              "total_tax_amount": 720
+            },
+            {
+              "name": "Cotton T-shirt",
+              "quantity": 1,
+              "unit_price": 2000,
+              "tax_rate": 800,
+              "total_amount": 2000,
+              "total_tax_amount": 160
+            },
+            {
+              "name": "Leather Jacket",
+              "quantity": 1,
+              "unit_price": 4800,
+              "tax_rate": 800,
+              "total_amount": 4800,
+              "total_tax_amount": 384
+            }
+          ],
+          "rejected_value": [
+            {
+              "name": "Floral Print Dress",
+              "quantity": 2,
+              "unit_price": 4500,
+              "tax_rate": 8,
+              "total_amount": 9000,
+              "total_tax_amount": 720
+            },
+            {
+              "name": "Cotton T-shirt",
+              "quantity": 1,
+              "unit_price": 2000,
+              "tax_rate": 8,
+              "total_amount": 2000,
+              "total_tax_amount": 160
+            },
+            {
+              "name": "Leather Jacket",
+              "quantity": 1,
+              "unit_price": 4800,
+              "tax_rate": 8,
+              "total_amount": 4800,
+              "total_tax_amount": 384
+            }
+          ]
+        }
+      ],
+      "model_assisted_preference_reason": "The schema requires tax rates in hundredths, so 8 percent must be encoded as 800 rather than the SFT value 8.",
+      "human_review": {
+        "decision": "PASS",
+        "note": "schema 明确要求 percentage in hundredths，因此 8% 应编码为 800。"
+      }
+    },
+    {
+      "audit_id": "AUDIT-11",
+      "source_sample_id": "xlam_55300",
+      "source_batch": "mining_v2",
+      "adjudication_stage": "phase_5c",
+      "audit_stratum": "value_transformation_or_normalization",
+      "call_type": "single",
+      "user_query": "What are the trending information on Spotify's home page for the UK region?",
+      "relevant_tools": [
+        {
+          "name": "get_home_page_overview",
+          "description": "Fetches trending information displayed on the Spotify home page as an incognito visitor.",
+          "relevant_parameters": {
+            "region": {
+              "type": "string",
+              "description": "Region code (ISO 3166 alpha-2) for localized results. Defaults to `None`, which will fallback to `US` if unsupported.",
+              "default": ""
+            }
+          },
+          "required_parameters": []
+        }
+      ],
+      "chosen_calls": [
+        {
+          "name": "get_home_page_overview",
+          "arguments": {
+            "region": "GB"
+          }
+        }
+      ],
+      "rejected_calls": [
+        {
+          "name": "get_home_page_overview",
+          "arguments": {
+            "region": "UK"
+          }
+        }
+      ],
+      "argument_differences": [
+        {
+          "tool": "get_home_page_overview",
+          "argument_path": "region",
+          "difference_type": "wrong_value",
+          "chosen_value": "GB",
+          "rejected_value": "UK"
+        }
+      ],
+      "model_assisted_preference_reason": "ISO alpha-2 for the United Kingdom is GB.",
+      "human_review": {
+        "decision": "PASS",
+        "note": "schema 明确声明 ISO 3166 alpha-2，UK 对应 GB 有规范依据。"
+      }
+    },
+    {
+      "audit_id": "AUDIT-12",
+      "source_sample_id": "xlam_32194",
+      "source_batch": "mining_v2",
+      "adjudication_stage": "phase_5c",
+      "audit_stratum": "value_transformation_or_normalization",
+      "call_type": "single",
+      "user_query": "I need the LN of the high prices for Litecoin (LTC/USD) for the past hour. Can you provide that?",
+      "relevant_tools": [
+        {
+          "name": "ln",
+          "description": "Returns the natural logarithm (LN) transforms of all data points for a given financial instrument using the Twelve Data API.",
+          "relevant_parameters": {
+            "interval": {
+              "type": "string",
+              "description": "The interval between two consecutive points in the time series. Supported intervals: `1min`, `5min`, `15min`, `30min`, `45min`, `1h`, `2h`, `4h`, `1day`, `1week`, `1month`.",
+              "default": "1min"
+            },
+            "outputsize": {
+              "type": "integer",
+              "description": "The number of data points to retrieve. The default value is `30` when no date parameters are set; otherwise, it is set to the maximum available.",
+              "default": 30
+            }
+          },
+          "required_parameters": []
+        }
+      ],
+      "chosen_calls": [
+        {
+          "name": "ln",
+          "arguments": {
+            "symbol": "LTC/USD",
+            "interval": "1min",
+            "outputsize": 60,
+            "series_type": "high"
+          }
+        }
+      ],
+      "rejected_calls": [
+        {
+          "name": "ln",
+          "arguments": {
+            "symbol": "LTC/USD",
+            "interval": "1h",
+            "series_type": "high"
+          }
+        }
+      ],
+      "argument_differences": [
+        {
+          "tool": "ln",
+          "argument_path": "outputsize",
+          "difference_type": "missing_argument",
+          "chosen_value": 60,
+          "rejected_value": {
+            "__absent__": true
+          }
+        },
+        {
+          "tool": "ln",
+          "argument_path": "interval",
+          "difference_type": "wrong_value",
+          "chosen_value": "1min",
+          "rejected_value": "1h"
+        }
+      ],
+      "model_assisted_preference_reason": "One hour of minute data requires 1min and 60 points.",
+      "human_review": {
+        "decision": "FAIL",
+        "note": "用户只要求 past hour，未要求 minute-level 数据；裁决理由引入了未给出的粒度前提。"
+      }
+    },
+    {
+      "audit_id": "AUDIT-13",
+      "source_sample_id": "xlam_54217",
+      "source_batch": "mining_v2",
+      "adjudication_stage": "phase_5c",
+      "audit_stratum": "value_transformation_or_normalization",
+      "call_type": "multi",
+      "user_query": "Could you provide the conversion rates from NOK to USD and GBP from June 1, 2022 to June 30, 2022? Also, I'd like to see the balance sheet for Telenor for the same period.",
+      "relevant_tools": [
+        {
+          "name": "balance_sheet",
+          "description": "Fetches the balance sheet of a specific company, including assets, liabilities, and shareholders’ equity, from an external API.",
+          "relevant_parameters": {
+            "country": {
+              "type": "string",
+              "description": "The country where the company is located.",
+              "default": ""
+            },
+            "exchange": {
+              "type": "string",
+              "description": "The stock exchange where the company is listed.",
+              "default": ""
+            },
+            "period": {
+              "type": "string",
+              "description": "The reporting period of the balance sheet data. Defaults to 'annual'.",
+              "default": "annual"
+            },
+            "symbol": {
+              "type": "string",
+              "description": "The stock symbol of the company.",
+              "default": "AAPL"
+            }
+          },
+          "required_parameters": []
+        }
+      ],
+      "chosen_calls": [
+        {
+          "name": "time_series_endpoint",
+          "arguments": {
+            "start_date": "2022-06-01",
+            "end_date": "2022-06-30",
+            "is_from": "NOK",
+            "to": "USD,GBP"
+          }
+        },
+        {
+          "name": "balance_sheet",
+          "arguments": {
+            "symbol": "TEL",
+            "start_date": "2022-06-01",
+            "end_date": "2022-06-30"
+          }
+        }
+      ],
+      "rejected_calls": [
+        {
+          "name": "time_series_endpoint",
+          "arguments": {
+            "start_date": "2022-06-01",
+            "end_date": "2022-06-30",
+            "is_from": "NOK",
+            "to": "USD,GBP"
+          }
+        },
+        {
+          "name": "balance_sheet",
+          "arguments": {
+            "symbol": "Telenor",
+            "exchange": "Oslo",
+            "country": "Norway",
+            "start_date": "2022-06-01",
+            "end_date": "2022-06-30",
+            "period": "annual"
+          }
+        }
+      ],
+      "argument_differences": [
+        {
+          "tool": "balance_sheet",
+          "argument_path": "country",
+          "difference_type": "extra_argument",
+          "chosen_value": {
+            "__absent__": true
+          },
+          "rejected_value": "Norway"
+        },
+        {
+          "tool": "balance_sheet",
+          "argument_path": "exchange",
+          "difference_type": "extra_argument",
+          "chosen_value": {
+            "__absent__": true
+          },
+          "rejected_value": "Oslo"
+        },
+        {
+          "tool": "balance_sheet",
+          "argument_path": "period",
+          "difference_type": "extra_argument",
+          "chosen_value": {
+            "__absent__": true
+          },
+          "rejected_value": "annual"
+        },
+        {
+          "tool": "balance_sheet",
+          "argument_path": "symbol",
+          "difference_type": "wrong_value",
+          "chosen_value": "TEL",
+          "rejected_value": "Telenor"
+        }
+      ],
+      "model_assisted_preference_reason": "Telenor must map to stock symbol TEL.",
+      "human_review": {
+        "decision": "FAIL",
+        "note": "Telenor 到 TEL 需要外部 ticker 知识，且 rejected 的其他字段也不显然有害。"
+      }
+    },
+    {
+      "audit_id": "AUDIT-14",
+      "source_sample_id": "xlam_32670",
+      "source_batch": "mining_v2",
+      "adjudication_stage": "phase_5c",
+      "audit_stratum": "value_transformation_or_normalization",
+      "call_type": "multi",
+      "user_query": "What's the latest on climate change from The Washington Post and The Times?",
+      "relevant_tools": [
+        {
+          "name": "get_specific_climate_change_news",
+          "description": "Fetch specific climate change news from a given newspaper.",
+          "relevant_parameters": {
+            "newspaperid": {
+              "type": "string",
+              "description": "The ID of the newspaper from which to fetch climate change news.",
+              "default": "guardian"
+            }
+          },
+          "required_parameters": []
+        }
+      ],
+      "chosen_calls": [
+        {
+          "name": "get_specific_climate_change_news",
+          "arguments": {
+            "newspaperid": "washingtonpost"
+          }
+        },
+        {
+          "name": "get_specific_climate_change_news",
+          "arguments": {
+            "newspaperid": "thetimes"
+          }
+        }
+      ],
+      "rejected_calls": [
+        {
+          "name": "get_specific_climate_change_news",
+          "arguments": {
+            "newspaperid": "washingtonpost"
+          }
+        },
+        {
+          "name": "get_specific_climate_change_news",
+          "arguments": {
+            "newspaperid": "times"
+          }
+        }
+      ],
+      "argument_differences": [
+        {
+          "tool": "get_specific_climate_change_news",
+          "argument_path": "newspaperid",
+          "difference_type": "wrong_value",
+          "chosen_value": "thetimes",
+          "rejected_value": "times"
+        }
+      ],
+      "model_assisted_preference_reason": "The Times identifier is thetimes.",
+      "human_review": {
+        "decision": "UNSURE",
+        "note": "The Times 到私有 newspaper ID 的映射未由 schema 提供。"
+      }
+    },
+    {
+      "audit_id": "AUDIT-15",
+      "source_sample_id": "xlam_7784",
+      "source_batch": "mining_v2",
+      "adjudication_stage": "phase_5c",
+      "audit_stratum": "constraint_or_schema_option_selection",
+      "call_type": "single",
+      "user_query": "Fetch videos from a playlist in the UK with ID 'PLcirGkCPmbmFeQ1sm4wFciF03D_EroIfr'.",
+      "relevant_tools": [
+        {
+          "name": "playlist_videos",
+          "description": "Fetches videos from a specified YouTube playlist using the RapidAPI service. ",
+          "relevant_parameters": {
+            "gl": {
+              "type": "string",
+              "description": "The geolocation code (default is 'US').",
+              "default": "US"
+            }
+          },
+          "required_parameters": []
+        }
+      ],
+      "chosen_calls": [
+        {
+          "name": "playlist_videos",
+          "arguments": {
+            "gl": "GB",
+            "is_id": "PLcirGkCPmbmFeQ1sm4wFciF03D_EroIfr"
+          }
+        }
+      ],
+      "rejected_calls": [
+        {
+          "name": "playlist_videos",
+          "arguments": {
+            "gl": "UK",
+            "is_id": "PLcirGkCPmbmFeQ1sm4wFciF03D_EroIfr"
+          }
+        }
+      ],
+      "argument_differences": [
+        {
+          "tool": "playlist_videos",
+          "argument_path": "gl",
+          "difference_type": "wrong_value",
+          "chosen_value": "GB",
+          "rejected_value": "UK"
+        }
+      ],
+      "model_assisted_preference_reason": "The geolocation code is GB rather than UK.",
+      "human_review": {
+        "decision": "UNSURE",
+        "note": "schema 只写 geolocation code，没有声明使用 ISO 3166。"
+      }
+    },
+    {
+      "audit_id": "AUDIT-16",
+      "source_sample_id": "xlam_18083",
+      "source_batch": "mining_v2",
+      "adjudication_stage": "phase_5c",
+      "audit_stratum": "constraint_or_schema_option_selection",
+      "call_type": "multi",
+      "user_query": "I need to find movies on Hulu and Netflix in France, sorted by popularity, with a limit of 10. Also, search for TikTok videos about 'sustainable fashion' posted this week.",
+      "relevant_tools": [
+        {
+          "name": "search_video_list_by_keywords",
+          "description": "Search for videos on TikTok by specified keywords and additional filtering options.",
+          "relevant_parameters": {
+            "publish_time": {
+              "type": "string",
+              "description": "Time filter for when videos were posted. Defaults to '0'.",
+              "default": "0"
+            }
+          },
+          "required_parameters": []
+        }
+      ],
+      "chosen_calls": [
+        {
+          "name": "movies",
+          "arguments": {
+            "sources": "netflix,hulu",
+            "region": "FR",
+            "limit": 10,
+            "sort": "popularity"
+          }
+        },
+        {
+          "name": "search_video_list_by_keywords",
+          "arguments": {
+            "keywords": "sustainable fashion",
+            "publish_time": "7"
+          }
+        }
+      ],
+      "rejected_calls": [
+        {
+          "name": "movies",
+          "arguments": {
+            "sources": "netflix,hulu",
+            "region": "FR",
+            "sort": "popularity",
+            "limit": 10
+          }
+        },
+        {
+          "name": "search_video_list_by_keywords",
+          "arguments": {
+            "keywords": "sustainable fashion",
+            "publish_time": "this week"
+          }
+        }
+      ],
+      "argument_differences": [
+        {
+          "tool": "search_video_list_by_keywords",
+          "argument_path": "publish_time",
+          "difference_type": "wrong_value",
+          "chosen_value": "7",
+          "rejected_value": "this week"
+        }
+      ],
+      "model_assisted_preference_reason": "The API's this-week filter is option 7.",
+      "human_review": {
+        "decision": "UNSURE",
+        "note": "schema 未说明数值 7 表示 this week。"
+      }
+    },
+    {
+      "audit_id": "AUDIT-17",
+      "source_sample_id": "xlam_26069",
+      "source_batch": "mining_v2",
+      "adjudication_stage": "phase_5c",
+      "audit_stratum": "entity_or_literal_extraction",
+      "call_type": "single",
+      "user_query": "Explore recipes from the Worldwide Recipes API starting from the 70th recipe.",
+      "relevant_tools": [
+        {
+          "name": "explore",
+          "description": "Fetches a list of recipes from the Worldwide Recipes API with optional pagination support.",
+          "relevant_parameters": {
+            "start": {
+              "type": "integer",
+              "description": "The starting point for pagination. Page 1 corresponds to start=0, Page 2 to start=20, and so on.",
+              "default": ""
+            }
+          },
+          "required_parameters": []
+        }
+      ],
+      "chosen_calls": [
+        {
+          "name": "explore",
+          "arguments": {
+            "start": 70
+          }
+        }
+      ],
+      "rejected_calls": [
+        {
+          "name": "explore",
+          "arguments": {
+            "start": 140
+          }
+        }
+      ],
+      "argument_differences": [
+        {
+          "tool": "explore",
+          "argument_path": "start",
+          "difference_type": "wrong_value",
+          "chosen_value": 70,
+          "rejected_value": 140
+        }
+      ],
+      "model_assisted_preference_reason": "The query explicitly says start at 70, not 140.",
+      "human_review": {
+        "decision": "PASS",
+        "note": "query 直接给出 start=70，rejected=140 明确错误。"
+      }
+    },
+    {
+      "audit_id": "AUDIT-18",
+      "source_sample_id": "xlam_22560",
+      "source_batch": "mining_v2",
+      "adjudication_stage": "phase_5d",
+      "audit_stratum": "missing_argument",
+      "call_type": "single",
+      "user_query": "Search for K-pop girl groups by their Korean name '레드벨벳'.",
+      "relevant_tools": [
+        {
+          "name": "girl_groups",
+          "description": "Fetch information about K-pop girl groups based on various query parameters.",
+          "relevant_parameters": {
+            "by": {
+              "type": "string",
+              "description": "The field by which to search for girl groups. Default is 'Group Name'. Possible values include:",
+              "default": "Group Name"
+            }
+          },
+          "required_parameters": []
+        }
+      ],
+      "chosen_calls": [
+        {
+          "name": "girl_groups",
+          "arguments": {
+            "q": "레드벨벳",
+            "by": "Korean Name"
+          }
+        }
+      ],
+      "rejected_calls": [
+        {
+          "name": "girl_groups",
+          "arguments": {
+            "q": "레드벨벳"
+          }
+        }
+      ],
+      "argument_differences": [
+        {
+          "tool": "girl_groups",
+          "argument_path": "by",
+          "difference_type": "missing_argument",
+          "chosen_value": "Korean Name",
+          "rejected_value": {
+            "__absent__": true
+          }
+        }
+      ],
+      "model_assisted_preference_reason": "The user explicitly asks to search by Korean name, while omission leaves the documented Group Name search type active.",
+      "human_review": {
+        "decision": "PASS",
+        "note": "query 明确要求 Korean name，省略 by 会回到 Group Name 默认值。"
+      }
+    },
+    {
+      "audit_id": "AUDIT-19",
+      "source_sample_id": "xlam_54289",
+      "source_batch": "mining_v2",
+      "adjudication_stage": "phase_5d",
+      "audit_stratum": "missing_argument",
+      "call_type": "multi",
+      "user_query": "Find dog breeds that have a maximum weight of 40 pounds, a high trainability level, and minimal shedding. Also, search for restaurants in San Francisco, CA, sorted by review count.",
+      "relevant_tools": [
+        {
+          "name": "v1_dogs",
+          "description": "Fetch a list of dog breeds matching specified parameters from the API. Returns at most 20 results by default.",
+          "relevant_parameters": {
+            "name": {
+              "type": "string",
+              "description": "Name of the dog breed. Defaults to 'golden retriever'.",
+              "default": "golden retriever"
+            }
+          },
+          "required_parameters": []
+        }
+      ],
+      "chosen_calls": [
+        {
+          "name": "v1_dogs",
+          "arguments": {
+            "max_weight": 40,
+            "trainability": 5,
+            "shedding": 0,
+            "name": ""
+          }
+        },
+        {
+          "name": "business_search",
+          "arguments": {
+            "location": "San Francisco, CA",
+            "query": "restaurants",
+            "sort_by": "REVIEW_COUNT"
+          }
+        }
+      ],
+      "rejected_calls": [
+        {
+          "name": "v1_dogs",
+          "arguments": {
+            "max_weight": 40,
+            "trainability": 5,
+            "shedding": 0
+          }
+        },
+        {
+          "name": "business_search",
+          "arguments": {
+            "location": "San Francisco, CA",
+            "query": "restaurants",
+            "sort_by": "REVIEW_COUNT"
+          }
+        }
+      ],
+      "argument_differences": [
+        {
+          "tool": "v1_dogs",
+          "argument_path": "name",
+          "difference_type": "missing_argument",
+          "chosen_value": "",
+          "rejected_value": {
+            "__absent__": true
+          }
+        }
+      ],
+      "model_assisted_preference_reason": "An empty name is needed to neutralize the tool's golden-retriever default; omission incorrectly restricts the requested unfiltered query.",
+      "human_review": {
+        "decision": "UNSURE",
+        "note": "schema 没有说明空字符串能够关闭 golden retriever 默认值。"
+      }
+    },
+    {
+      "audit_id": "AUDIT-20",
+      "source_sample_id": "xlam_44094",
+      "source_batch": "mining_v2",
+      "adjudication_stage": "phase_5d",
+      "audit_stratum": "extra_argument",
+      "call_type": "multi",
+      "user_query": "Retrieve the quote with ID 68020 from the movie and TV shows quotes module. Then, search for available inventory in the films module, limiting the results to 300 and skipping the first 250. Finally, fetch the movie title details from the movies database module using the IMDb ID 'tt0000008'.",
+      "relevant_tools": [
+        {
+          "name": "searchinventory",
+          "description": "Searches for available inventory in the system based on the provided search parameters.",
+          "relevant_parameters": {
+            "searchstring": {
+              "type": "string",
+              "description": "An optional search string to look up inventory items. Defaults to 'string'.",
+              "default": "string"
+            }
+          },
+          "required_parameters": []
+        }
+      ],
+      "chosen_calls": [
+        {
+          "name": "get_individual_quotes_by_quote_id",
+          "arguments": {
+            "is_id": 68020
+          }
+        },
+        {
+          "name": "searchinventory",
+          "arguments": {
+            "limit": 300,
+            "skip": 250
+          }
+        },
+        {
+          "name": "titles_id",
+          "arguments": {
+            "is_id": "tt0000008"
+          }
+        }
+      ],
+      "rejected_calls": [
+        {
+          "name": "get_individual_quotes_by_quote_id",
+          "arguments": {
+            "is_id": 68020
+          }
+        },
+        {
+          "name": "searchinventory",
+          "arguments": {
+            "searchstring": "films",
+            "limit": 300,
+            "skip": 250
+          }
+        },
+        {
+          "name": "titles_id",
+          "arguments": {
+            "is_id": "tt0000008"
+          }
+        }
+      ],
+      "argument_differences": [
+        {
+          "tool": "searchinventory",
+          "argument_path": "searchstring",
+          "difference_type": "extra_argument",
+          "chosen_value": {
+            "__absent__": true
+          },
+          "rejected_value": "films"
+        }
+      ],
+      "model_assisted_preference_reason": "Films identifies the module context rather than desired search text, so adding it as searchstring imposes an unsupported filter.",
+      "human_review": {
+        "decision": "PASS",
+        "note": "films 是 module context，不是用户要求的 inventory search string。"
+      }
+    }
+  ]
+}

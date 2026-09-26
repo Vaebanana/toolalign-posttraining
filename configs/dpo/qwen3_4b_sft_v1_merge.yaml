@@ -1,0 +1,13 @@
+### Merge SFT-v1 into its base so one quantized model can serve as both the
+### fixed DPO reference and the initialization of the DPO policy.
+model_name_or_path: Qwen/Qwen3-4B-Instruct-2507
+adapter_name_or_path: outputs/train/qwen3_4b_qlora_sft_v1
+template: qwen3_nothink
+trust_remote_code: true
+
+### export
+export_dir: outputs/models/qwen3_4b_sft_v1_merged
+export_size: 5
+export_device: cpu
+export_legacy_format: false
+

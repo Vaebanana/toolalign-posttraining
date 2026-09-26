@@ -7,8 +7,11 @@ two single-call, two parallel-call and two text-only assistant targets.
 from __future__ import annotations
 
 import argparse
+import io
 import json
+import sys
 from collections import Counter
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -211,6 +214,20 @@ def _load_with_llamafactory(tokenizer_dir: Path) -> tuple[Any, Any]:
     return tokenizer, dataset_module["train_dataset"]
 
 
+def _load_with_llamafactory_quietly(tokenizer_dir: Path) -> tuple[Any, Any]:
+    """Suppress framework previews on success and replay them on failure."""
+    captured = io.StringIO()
+    try:
+        with redirect_stdout(captured), redirect_stderr(captured):
+            return _load_with_llamafactory(tokenizer_dir)
+    except BaseException:
+        diagnostics = captured.getvalue().strip()
+        if diagnostics:
+            print("LLaMA-Factory diagnostic output:", file=sys.stderr)
+            print(diagnostics, file=sys.stderr)
+        raise
+
+
 def _validate_tokenized_sample(
     canonical: dict[str, Any],
     tokenized: dict[str, Any],
@@ -303,7 +320,7 @@ def main() -> None:
     export_counts = _validate_exported_files()
     selected = _select_representatives()
     _write_sanity_dataset(selected)
-    tokenizer, tokenized_dataset = _load_with_llamafactory(tokenizer_dir)
+    tokenizer, tokenized_dataset = _load_with_llamafactory_quietly(tokenizer_dir)
     if tokenized_dataset is None or len(tokenized_dataset) != len(selected):
         raise AssertionError(
             f"LLaMA-Factory loaded {0 if tokenized_dataset is None else len(tokenized_dataset)} "
@@ -334,7 +351,9 @@ def main() -> None:
         file.write("\n")
 
     print("LLaMA-Factory qwen3_nothink sanity check passed")
-    print(json.dumps(summary, ensure_ascii=False, indent=2))
+    print(f"samples: {len(records)}")
+    for kind in ("single", "multi", "text"):
+        print(f"{kind}: {type_counts[kind]}")
     print(f"summary: {summary_path}")
 
 
